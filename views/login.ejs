@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>分析データ入力 <%= title %></p>
+   <h1>login</h1>
+    <h3 style="color:red">
+       <% if (message) { %>
+        <%= message %> </ br>
+        <% } %>
+      </h3>
+
+      <table>
+        <form method="POST" action="login">
+          <tr><td>Username:</td><td><input type="text" name="name"></td></tr>
+          <tr><td>Password:</td><td><input type="password" name="password"></td></tr>
+          <tr><td></td><td><input type="submit" name="submit" value="Login"></td></tr>
+        </form>
+      </table>
+    </body>
+</html>

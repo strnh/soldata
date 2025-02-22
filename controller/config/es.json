@@ -1,0 +1,30 @@
+{
+   "es": [
+     { "row": 1, "contents": ["エッチング", "無水クロム酸","etcrox","etcroxv", "365", "360〜375","g/L",1,"etcr3x" ] },
+     { "row": 2, "contents": ["エッチング", "三価クロム","etcr3x","etcr3v", "20", "15〜25","g/L",1,"etso4x" ] },
+     { "row":3, "contents": ["エッチング", "硫酸","etso4x","etso4v", "200", "180〜210","mL/L",1 ,"etparadx"] },
+     { "row":4, "contents": ["エッチング", "パラジウム","etparadx","etparadv", "0.7", "0.7〜1.4","g/L",1 ,"predip1"] },
+     { "row":5, "contents": ["プリディップ", "塩酸","predip1","predip2", "70", "50〜120","mL/L" ,1 , "crpmpdx"]},
+     { "row":6, "contents": ["CRPキャタ", "金属パラジウム","crpmpdx","crpmpdv", "90", "85〜100", "mg/L",1 ,"crphclx" ]},
+     { "row":7, "contents": ["CRPキャタ", "塩化パラジウム","crpclpdx","crpclpdv", "148", "140〜160","mg/L",0,"crphclx" ] },
+     { "row":8, "contents": ["CRPキャタ", "CRPキャタ85","crpc85x","crpc85v", "17", "16〜20","mg/L",0,"crphclx" ] },
+     { "row":9, "contents": ["CRPキャタ", "塩酸","crphclx","crphclv", "24.0", "0〜50","mL/L",1,"crpsnclx" ] },
+     { "row":10, "contents": ["CRPキャタ", "塩化第一錫","crpsnclx","crpsnclv", "240", "240〜250","g/L",1,"selcux" ] },
+     { "row":11, "contents": [ "CRPセレクタ", "銅","selcux","selcuv", "1.0", "0.8〜1.2","g/L",1,"selakx" ] },
+     { "row":12, "contents": [ "CRPセレクタ", "セレクタA-K濃度","selakx","selakv", "140", "130〜150","mL/L",1,"selbx" ] },
+     { "row":13, "contents": [ "CRPセレクタ", "セレクタB濃度","selbx","selbv", "190", "150〜220","mL/L",1,"cuscusx" ] },
+     { "row":14, "contents": [ "硫酸銅めっき", "硫酸銅","cuscusx","cuscusv", "200", "190〜210","g/L",1,"cusso4x" ]  },
+     { "row":15, "contents": [ "硫酸銅めっき", "硫酸","cusso4x","cusso4v", "50.0", "45.0〜55.0","g/L",1,"cusclox" ]  },
+     { "row":16, "contents": [ "硫酸銅めっき", "塩素イオン","cusclox","cusclov", "70.0", "60.0〜90.0","g/L",1,"snitotnix" ] },
+     { "row":17, "contents": [ "ニッケルめっき", "総ニッケル","snitotnix","snitotniv", "60.0", "20〜80","g/L",1,"sniniclx" ] },
+     { "row":18, "contents": [ "ニッケルめっき", "硫酸ニッケル","sninisox","sninisov", "200", "170〜300","g/L",0,"sniniclx" ] } ,
+     { "row":19, "contents": [ "ニッケルめっき", "塩化ニッケル","sniniclx","sniniclv", "40.0", "35〜40","g/L",1 ,"snibx"] },
+     { "row":20, "contents": [ "ニッケルメッキ", "ほう酸","snibx","snibv", "40", "35〜45","g/L",1,"crcro3x" ] },
+     { "row":21, "contents": [ "クロムめっき", "無水クロム酸","crcro3x","crcro3v", "290", "280〜300","g/L",1,"crtcx" ] },
+     { "row":22, "contents": [ "クロムめっき", "ニューTCクロム","crtcx","crtcv", "50.0", "45.0〜55.0","g/L",1,"crso4x" ] },
+     { "row":23, "contents": [ "クロムめっき", "硫酸","crso4x","crso4v", "0.89", "0.80〜10","g/L",1,"craccr" ] },
+     { "row":24, "contents": [ "クロム活性", "三価クロム","craccr","craccrv", "7.00", " ","g/L",1,"cracso" ] },
+     { "row":25, "contents": [ "クロム活性", "硫酸","cracso","cracsov", "0.65", " ","g/L",1,"etcrox" ] }
+   ],
+   "factor": ["fnaoh1","fnaoh2","fedta","fi","fhcl","fagno3","fna2s2o3"]
+ }

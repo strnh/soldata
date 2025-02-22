@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/jquery-ui.css">
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <script type="text/javascript" src="/js/jquery1.11.3.min.js"></script>
+  <script type="text/javascript" src="/js/jquery-ui.js"></script>
+  <script type="text/javascript" src="/js/datepick.js"></script>
+  <script type="text/javascript" src="/js/putdata.js"></script>
+  <script type="text/javascript" src="/js/dialog.js"></script>
+  <script type="text/javascript" src="/js/memberlist.js"></script>
+</head>
+<body>
+  <% if (nf==1) { -%>
+  <%   modev = "insert"; -%>
+  <%   if (dg==1) {
+      entrydateview = dt.substring(0,10);
+      title = title + "（新規入力モード/過去の日付）";
+      } else {
+        entrydateview = ed2.substring(0,10);
+        title = title + "（新規入力モード/本日分）";
+      }　-%>
+  <% } else { -%>
+  <%   modev = "update"; -%>
+  <%   if (dp==1) { -%>
+  <%     entrydateview = dt.substring(0,10); -%>
+  <%     title = title + "（修正入力モード/過去データ）"; -%>
+  <%   } else { -%>
+  <%     entrydateview = ed.substring(0,10); -%>
+  <%     title = title + "（修正入力モード/最近入力されたデータ）"; -%>
+  <%   } -%>
+  <% } -%>
+
+          <p style="font-size:20pt;"><%= title %></p>
+          <form method="POST" action="/entry/submit">
+           <input type="hidden" name="mode" id="mode" value="<%= modev %>">
+           <table name="separator" width="100%" >
+            <tr>
+              <td>
+                <table id="factor" border=1 CELLSPACING=0 cellpadding=5>
+                  <tbody>
+                    <tr>
+                      <% var s = '<th>試薬ファクタ</th><th style="text-align:center">値</th>'; %>
+                      <% var i = 0; %>
+                      <% for (var i=0; i<4 ; i++) { %>
+                        <%- s %>
+                      <%  } %>
+                      </tr>
+                      <tr>
+                        <td>苛性ソーダ 0.1N </td><td> <input class="fnum" id="fnaoh1" name="fnaoh1" value="<%= kj.fnaoh1 %>" data-vector="fnaoh2"> </td>
+                        <td>苛性ソーダ   1N </td><td> <input class="fnum" id="fnaoh2" name="fnaoh2" value="<%= kj.fnaoh2 %>" data-vector="fedta" > </td>
+                        <td>EDTA </td><td> <input class="fnum" id="fedta" name="fedta" value="<%= kj.fedta %>" data-vector="fi"> </td>
+                        <td>よう素</td><td> <input class="fnum" id="fi" name="fi" value="<%= kj.fi %>" data-vector="fhcl"> </td>
+                      </tr>
+                      <tr>
+                        <td>塩酸</td><td> <input class="fnum" id="fhcl" name="fhcl" value="<%= kj.fhcl %>" data-vector="fagno3"> </td>
+                        <td>硝酸銀</td><td> <input class="fnum" id="fagno3" name="fagno3" value="<%= kj.fagno3 %>" data-vector="fna2s2o3"> </td>
+                        <td>チオ硫酸ナトリウム</td><td> <input class="fnum" id="fna2s2o3" name="fna2s2o3" value="<%= kj.fna2s2o3 %>" data-vector="fnaoh1"> </td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <table name="entrydates" border=0>
+                    <tr>
+                      <!--- // value="<%= kj.date.getFullYear() %>/<%= kj.date.getMonth()+1 %>/<%= kj.date.getDate() %> --->
+                      <td>
+                        <input name="datepicker" style="width:100px" class="num" type="text" id="datepicker" value="<%= entrydateview %>"> の 測定データ
+                      </td>
+                      <td>
+                        <input type="button" name="lastentry" id="lastentry" value= "最後に入力した日 <%= ed.substring(0,10) %>" ></input>
+                        <input type="hidden" name="lastentrydate" id="lastentrydate" value= "<%= ed.substring(0,10) %>" ></input>
+
+                      </td>
+                      <td>
+                        <input type="button" name="newentry" id="newentry" value= "<%= ed2.substring(0,10) %>" ></input> で新規に記録入力する
+                        <input type="hidden" name="newentrydate" id="newentrydate" value="<%= ed2.substring(0,10) %>" ></input>
+
+                      </td>
+                      <td>
+                         <button name="delentry" id="delentry" >次の日付分を削除する <%= entrydateview %> </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <% if ( nf==1 ) { %>
+                        <td>測定者：  <select name="sid" class="member"></td>
+                          <td>記録者：  <select name="kid" class="member"> </td>
+                            <td>
+                              <input type="submit" name="submit" class="submit" value="入力完了・登録">
+                              <input type="reset" name="reload" id="reload" value="入力内容を戻す" >
+
+                              <input type="hidden" name="nf" value="<%= nf %>">
+                            </td>
+                            <% } else { %>
+                            <td>測定者　: <%= sn %></td>
+                            <td>記録者　: <%= kn %></td>
+                            <td>
+                              <input type="submit" name="submit" class="submit" value="変更完了・修正">
+                              <input type="button" name="reload" id="reload" value="入力内容を戻す" onClick="location.reload(true);">
+                            </td>
+
+                              <% } %>
+                          </tr>
+                        </table>
+                      </td>
+                      <td>
+                      </td>
+                      </tr>
+                    </table>
+
+                        <table border=1 width=80% CELLSPACING=0 cellpadding=5>
+                          <tr>
+                            <th>種　　　別 </th><th>項　目</th><th>測　定　量</th><th>計　算　値</th><th>目　標　値</th><th>範　囲</th>
+                          </tr>
+                          <%  $ctgcount = new Object();
+                             $entrycount = es.es.length ;
+                             for ($n=0;$n<$entrycount;$n++) {
+                               cname = es.es[$n]["contents"][0];
+                              $ctgcount[cname]=0;
+                           } -%>
+                          <%  for ($n=0;$n<$entrycount;$n++) { -%>
+                          <%    cname = es.es[$n]["contents"][0]; -%>
+                          <%    $ctgcount[cname]=$ctgcount[cname]+1;  -%>
+                          <% } -%>
+                          <% $rc = 0 -%>
+                          <% for ($i=0;$i<$entrycount;$i++) { -%>
+                          <%  $category = es.es[$i]["contents"][0]; -%>
+                          <%  $name = es.es[$i]["contents"][1]; -%>
+                          <%  $x = es.es[$i]["contents"][2]; -%>
+                          <%  $y = es.es[$i]["contents"][3]; -%>
+                          <%  $g =  es.es[$i]["contents"][4]; -%>
+                          <%  $r =  es.es[$i]["contents"][5]; -%>
+                          <%  $s =  es.es[$i]["contents"][6]; -%>
+                          <%  $enb =  es.es[$i]["contents"][7]; -%>
+                          <%  $vector = es.es[$i]["contents"][8]; -%>
+                          <% str ="" -%>
+                          <% str2="" -%>
+                          <tr>
+                            <% if (($rc==0) && ($ctgcount[($category)]>1)) { -%>
+                            <%  str = '<td rowspan='+$ctgcount[($category)]+'>'+ $category+'</td>'; -%>
+                            <%  $rc = $ctgcount[($category)]-1; -%>
+                            <% } else { -%>
+                            <%  if ($ctgcount[($category)]==1) { -%>
+                            <%    str='<td>'+$category+'</td>'; -%>
+                            <%    $rc=0; -%>
+                            <% } else { -%>
+                            <%    $rc--; -%>
+                            <%    str=""; -%>
+                            <% } } -%>
+                            <%- str -%>
+                            <td><%= $name %> </td>
+                            <td class='numeric'>
+                            <% if ($enb==1) { -%>
+                              <%
+                              vstr = (nc==0) ? Number(eval("kj."+$x)).toFixed(2) : "";
+                              str = '<input class="num" id="' +$x +'" name="'+ $x
+                              +'" value="' + vstr
+                              +'" data-vector="'+$vector
+                              +'" data-target="'+$y
+                              +'" data-unit="'+$s
+                              +'"></td>'; -%>
+                              <% } else { -%>
+                              <% str = '↑'; -%>
+                              <% } -%>
+                            <%- str %>
+
+                            <td class='numeric' id="<%- $y %>-bg">
+                              <%
+                              vstr = (nc==0) ? Number(eval("kj."+$y)).toFixed(2) : "";
+                              str2 = '<input class="num" id="' +$y +'" name="'+ $y
+                              +'" value="'+ vstr
+                              +'" data-vector="'+$vector
+                              +'" data-unit="'+$s
+                              +'">'; -%>
+                              <%- str2 %>
+                            </td>
+                            <td class='numeric'><%= $g %> <%= $s %></td>
+                            <td class='numeric'><%= $r %> <%= $s %></td>
+                          </tr> <% } %>
+                        </form>
+
+                    <div id="datedialognothing" >
+                      <p> その日付での測定データは記録されていません </p>
+                    </div>
+                    <div id="deletedialog" >
+                      <p> データを削除します。よろしいですか？ </p>
+                    </div>
+                    <div id="clearentry" >
+                      <p> 新規入力モード選択 </p>
+                    </div>
+
+                  </td>
+
+                    </body>
+                    </html>

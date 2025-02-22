@@ -1,0 +1,12 @@
+#!/bin/sh
+CREATEDB="/usr/bin/createdb"
+CREATEUSER="/usr/bin/createuser"
+DBNAME="soldata"
+DBHOST="127.0.0.1"
+DBPORT="5432"
+DBUSER="postgres"
+USER1="user1"
+export PGPASSFILE='./.pass'
+
+$CREATEUSER -U $DBUSER -h $DBHOST -p $DBPORT  $USER1
+$CREATEDB -U $DBUSER -h $DBHOST -p $DBPORT -O $USER1 $DBNAME

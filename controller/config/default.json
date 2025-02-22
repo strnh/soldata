@@ -1,0 +1,15 @@
+{
+  "postgres": {
+       "host": "127.0.0.1",
+       "port": "5432",
+       "cs": "postgres://127.0.0.1/soldata",
+       "cn": {
+         "host": "127.0.0.1",
+         "port": "5432",
+         "database": "soldata",
+         "user": "postgres",
+         "password": "postgres"
+       }
+
+  }
+}
