@@ -5,14 +5,13 @@ $(function () {
       $select.empty();
       var $option,options,isSelected;
       var options = $.map(data,function (id,name){
-//        console.log("id == "+id["bunseki-id"]);
-        if (id["bunseki-id"] === 10002 ) {
+        console.log("id == "+id["bid"]);
+        if (id["bid"] === 10002 ) {
           isSelected = true;
         } else {
             isSelected = false;
         }
-
-        $option=$('<option>', { value: id["bunseki-id"], text: id["name"], selected: isSelected});
+        $option=$('<option>', { value: id["bid"], text: id["name"], selected: isSelected});
         return $option;
       });
       $select.append(options);
