@@ -7,4 +7,4 @@
 # 必要なもの
 * posgresql サーバ
 * node v22.13.1 が動くデスクトップ環境
-![ScreenShot](img/ss.png)
+![ScreenShot](img/soldata_ss.png)
