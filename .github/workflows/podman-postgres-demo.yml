@@ -14,6 +14,8 @@ name: Podman PostgreSQL Demo
 jobs:
   podman-postgres-demo:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
