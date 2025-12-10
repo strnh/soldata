@@ -5,7 +5,7 @@
 * 今回 v22.13.1 用に改めた。
 
 # 必要なもの
-* posgresql サーバ（または Podman/Docker で自動起動可能）
+* PostgreSQL サーバ（または Podman/Docker で自動起動可能）
 * node v22.13.1 が動くデスクトップ環境
 * スクリーンショット
 ![ScreenShot](img/soldata_ss.png)

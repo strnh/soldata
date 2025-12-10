@@ -16,7 +16,7 @@ fi
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SCHEMA_FILE="$SCRIPT_DIR/../pgsql/schema.sql"
+SCHEMA_FILE="$SCRIPT_DIR/../db/pgsql/schema.sql"
 
 echo "[INFO] Applying PostgreSQL schema..."
 echo "[INFO] Database: $DBNAME at $DBHOST:$DBPORT"
