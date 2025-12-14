@@ -9,7 +9,6 @@ CONTAINER_NAME="${POSTGRES_CONTAINER_NAME:-postgres}"
 POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-postgres}"
 POSTGRES_DB="${POSTGRES_DB:-soldata}"
 POSTGRES_USER="${POSTGRES_USER:-postgres}"
-POSTGRES_PORT="${POSTGRES_PORT:-5432}"
 VOLUME_NAME="${POSTGRES_VOLUME:-pgdata}"
 POSTGRES_IMAGE="${POSTGRES_IMAGE:-docker.io/library/postgres:latest}"
 
@@ -80,7 +79,7 @@ start_container() {
     log_info "  Image: $POSTGRES_IMAGE"
     log_info "  Database: $POSTGRES_DB"
     log_info "  User: $POSTGRES_USER"
-    log_info "  Port: $POSTGRES_PORT"
+    log_info "  Network: host (PostgreSQL will listen on port 5432)"
     log_info "  Volume: $VOLUME_NAME"
     
     podman run --replace -d \
@@ -186,14 +185,15 @@ Environment Variables:
     POSTGRES_PASSWORD          PostgreSQL password (default: postgres)
     POSTGRES_DB                Database name (default: soldata)
     POSTGRES_USER              PostgreSQL user (default: postgres)
-    POSTGRES_PORT              Host port mapping (default: 5432)
     POSTGRES_VOLUME            Volume name (default: pgdata)
     POSTGRES_IMAGE             Docker image (default: docker.io/library/postgres:latest)
+
+Note: The container uses host networking mode, so PostgreSQL will always listen on port 5432.
 
 Examples:
     $0 start
     $0 stop --clean
-    POSTGRES_PORT=5433 $0 start
+    POSTGRES_DB=mydb $0 start
 
 EOF
 }
