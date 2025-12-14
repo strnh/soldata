@@ -90,6 +90,25 @@ async function memberlist() {
   }
 }
 
+async function listByMonth(year, month) {
+  var pgp = pgpLib();
+  var db = pgp(cn);
+  try {
+    // Construct first day and first day of next month
+    const start = `${year}-${String(month).padStart(2,'0')}-01`;
+    const qry = `SELECT * FROM soldata WHERE date >= $1::date AND date < ($1::date + interval '1 month') ORDER BY date DESC`;
+    let data = await db.query(qry, [start]);
+    return data;
+  } catch (reason) {
+    console.log(reason);
+    throw reason;
+  } finally {
+    pgp.end();
+  }
+}
+
+module.exports.listByMonth = listByMonth;
+
 module.exports.readdb = readdb;
 module.exports.uid2name = uid2name;
 module.exports.readrefrangetbl = readrefrangetbl;
