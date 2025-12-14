@@ -22,26 +22,37 @@
     <table>
       <thead>
         <tr>
-          <th>日付</th>
-          <th>無水クロム酸 (etcrox)</th>
-          <th>三価クロム (etcr3x)</th>
-          <th>硫酸 (etso4x)</th>
-          <th>パラジウム (predip1)</th>
-          <th>CRP 金属Pd (crpmpdx)</th>
+          <th rowspan="2">日付</th>
+          <% if (es && es.es) { %>
+            <% es.es.forEach(function(item){ %>
+              <th colspan="2"><%= item.contents[1] %></th>
+            <% }); %>
+          <% } %>
+        </tr>
+        <tr>
+          <% if (es && es.es) { %>
+            <% es.es.forEach(function(item){ %>
+              <th>測定量</th>
+              <th>計算値</th>
+            <% }); %>
+          <% } %>
         </tr>
       </thead>
       <tbody>
         <% if (!rows || rows.length === 0) { %>
-          <tr><td colspan="6">該当データはありません。</td></tr>
+          <tr><td colspan="<%= (es && es.es) ? (1 + es.es.length*2) : 1 %>">該当データはありません。</td></tr>
         <% } else { %>
           <% rows.forEach(function(r){ %>
             <tr>
-              <td><%= r.date ? r.date.toISOString().slice(0,10) : '' %></td>
-              <td><%= r.etcrox === null ? '' : r.etcrox %></td>
-              <td><%= r.etcr3x === null ? '' : r.etcr3x %></td>
-              <td><%= r.etso4x === null ? '' : r.etso4x %></td>
-              <td><%= r.predip1 === null ? '' : r.predip1 %></td>
-              <td><%= r.crpmpdx === null ? '' : r.crpmpdx %></td>
+              <td><%= r.date ? (typeof r.date === 'string' ? r.date.slice(0,10) : r.date.toISOString().slice(0,10)) : '' %></td>
+              <% if (es && es.es) { %>
+                <% es.es.forEach(function(item){ %>
+                  <% var x = item.contents[2]; %>
+                  <% var y = item.contents[3]; %>
+                  <td><%= (r[x] === null || typeof r[x] === 'undefined') ? '' : r[x] %></td>
+                  <td><%= (r[y] === null || typeof r[y] === 'undefined') ? '' : r[y] %></td>
+                <% }); %>
+              <% } %>
             </tr>
           <% }); %>
         <% } %>
