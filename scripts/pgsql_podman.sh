@@ -85,11 +85,11 @@ start_container() {
     
     podman run --replace -d \
         --name "$CONTAINER_NAME" \
+        --network=host \
         -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
         -e POSTGRES_DB="$POSTGRES_DB" \
         -e POSTGRES_USER="$POSTGRES_USER" \
-        -p "${POSTGRES_PORT}:5432" \
-        -v "${VOLUME_NAME}:/var/lib/postgresql/data" \
+        -v "${VOLUME_NAME}:/var/lib/postgresql" \
         "$POSTGRES_IMAGE" || {
         log_error "Failed to start container"
         return 1
