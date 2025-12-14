@@ -172,3 +172,42 @@ bash scripts/wait-for-postgres.sh
 # 完全にリセット
 make db-recreate-clean
 ```
+
+## macOS (Sequoia / Apple Silicon) でのセットアップ
+
+このリポジトリをクローンしてすぐに起動できるよう、macOS 向けの補助スクリプトを `scripts/macos_podman_setup.sh` として用意しています。
+
+前提:
+- Homebrew がインストールされていること
+
+簡単な使い方:
+
+```bash
+# 実行権限を付与
+chmod +x scripts/macos_podman_setup.sh
+
+# スクリプトを実行（podman のインストール、machine 初期化、Postgres コンテナ起動、スキーマ/シード適用を試行します）
+./scripts/macos_podman_setup.sh
+```
+
+スクリプトの挙動:
+- `brew` が無ければ中断します（Homebrew を手動で導入してください）。
+- `podman` が無ければ `brew install podman` を試みます。
+- `podman machine` を初期化・起動し、Postgres コンテナ（名前: `soldata-postgres`）を起動します。
+- `scripts/apply-schema.sh` が実行可能であれば自動実行します（存在しない場合は手動適用を案内します）。
+- `db/seed/seed.sh` が実行可能であれば自動でシードを投入します。
+
+接続情報（デフォルト）:
+- host: localhost
+- port: 5432
+- user: postgres
+- db: soldata
+- password: postgres
+
+トラブルシューティング:
+- `podman machine start` が失敗する場合は、`podman machine list` と `podman machine inspect` の出力を確認してください。
+- コンテナログの確認: `podman logs soldata-postgres`
+- psql で手動接続確認: `psql -h localhost -p 5432 -U postgres -d soldata`
+
+備考:
+- Sequoia（macOS 14）や Apple Silicon 環境では、Lima を通した VM の初期化やリソース設定が必要になる場合があります。スクリプトは一般的な初期化を試みますが、環境依存の調整が必要な場合は手動で `podman machine` の設定を行ってください。
