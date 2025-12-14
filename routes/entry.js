@@ -196,13 +196,16 @@ router.get('/list', async function(req, res, next) {
         let nextYear = qyear, nextMonth = qmonth + 1;
         if (nextMonth > 12) { nextMonth = 1; nextYear += 1; }
 
+        const es = JSON.parse(fs.readFileSync('./config/es.json', 'utf8'));
         res.render('listview', {
             title: `一覧: ${qyear}/${String(qmonth).padStart(2,'0')}`,
             rows: rows,
             year: qyear,
             month: qmonth,
             prev: { year: prevYear, month: prevMonth },
-            next: { year: nextYear, month: nextMonth }
+            next: { year: nextYear, month: nextMonth },
+            es: es,
+            basePath: req.baseUrl || ''
         });
     } catch (err) {
         next(err);

@@ -35,7 +35,8 @@ router.get('/list', async function(req, res, next) {
       month: qmonth,
       prev: { year: prevYear, month: prevMonth },
       next: { year: nextYear, month: nextMonth },
-      es: es
+      es: es,
+      basePath: req.baseUrl || ''
     });
   } catch (err) {
     next(err);

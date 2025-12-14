@@ -14,9 +14,9 @@
   <body>
     <h1><%= title %></h1>
     <div class="pager">
-      <a href="/list?year=<%= prev.year %>&month=<%= prev.month %>">前の月</a>
+      <a href="<%= (basePath||'') %>/list?year=<%= prev.year %>&month=<%= prev.month %>">前の月</a>
       &nbsp;|&nbsp;
-      <a href="/list?year=<%= next.year %>&month=<%= next.month %>">次の月</a>
+      <a href="<%= (basePath||'') %>/list?year=<%= next.year %>&month=<%= next.month %>">次の月</a>
     </div>
     <style>
       .table-container { max-height: 72vh; overflow: auto; }
@@ -100,9 +100,9 @@
     </script>
 
     <div class="pager">
-      <a href="/list?year=<%= prev.year %>&month=<%= prev.month %>">◀ 前の月</a>
+      <a href="<%= (basePath||'') %>/list?year=<%= prev.year %>&month=<%= prev.month %>">◀ 前の月</a>
       &nbsp;|&nbsp;
-      <a href="/list?year=<%= next.year %>&month=<%= next.month %>">次の月 ▶</a>
+      <a href="<%= (basePath||'') %>/list?year=<%= next.year %>&month=<%= next.month %>">次の月 ▶</a>
     </div>
   </body>
 </html>
