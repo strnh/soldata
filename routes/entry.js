@@ -82,8 +82,15 @@ router.get("/", async (req, res, next) => {
 
     const range = await db.readrefrangetbl();
     const result = await db.readdb(fld);
-    const sname = await db.uid2name(result[0].sid);
-    const kname = await db.uid2name(result[0].kid);
+    const kj = (result && result.length > 0) ? result[0] : {};
+    let sname = [];
+    let kname = [];
+    if (kj && kj.sid) {
+        sname = await db.uid2name(kj.sid) || [];
+    }
+    if (kj && kj.kid) {
+        kname = await db.uid2name(kj.kid) || [];
+    }
 
     const sn_name = (sname && sname[0] && sname[0].name) ? sname[0].name : '';
     const kn_name = (kname && kname[0] && kname[0].name) ? kname[0].name : '';
@@ -93,10 +100,10 @@ router.get("/", async (req, res, next) => {
         message: "データ入力: ",
         ed: ed,
         ed2: ed2,
-        kj: result[0],
+        kj: kj,
         sn: sn_name,
         kn: kn_name,
-        rg: range[0],
+        rg: (range && range[0]) ? range[0] : {},
         ld: fld,
         dt: dts,
         nf: nf,
