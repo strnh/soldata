@@ -21,7 +21,7 @@
     <style>
       .table-container { max-height: 72vh; overflow: auto; }
       thead tr:first-child th { position: sticky; top: 0; z-index: 3; }
-      thead tr:nth-child(2) th { position: sticky; top: 38px; z-index: 2; }
+      thead tr:nth-child(2) th { position: sticky; top: 0; z-index: 2; }
       thead th { background: #f0f0f0; }
     </style>
 
@@ -67,6 +67,37 @@
       </tbody>
     </table>
     </div>
+    <script>
+      (function(){
+        function adjustSticky(){
+          try{
+            var container = document.querySelector('.table-container');
+            if(!container) return;
+            var firstRow = container.querySelector('thead tr:first-child');
+            var secondRow = container.querySelector('thead tr:nth-child(2)');
+            if(!firstRow || !secondRow) return;
+            // calculate heights including borders
+            var frh = firstRow.getBoundingClientRect().height;
+            // set top for first and second header rows relative to container
+            var ths1 = firstRow.querySelectorAll('th');
+            ths1.forEach(function(th){ th.style.top = '0px'; });
+            var ths2 = secondRow.querySelectorAll('th');
+            ths2.forEach(function(th){ th.style.top = frh + 'px'; });
+          }catch(e){ console && console.warn && console.warn(e); }
+        }
+        // run on load and resize; also when fonts might change
+        if(document.readyState === 'loading'){
+          document.addEventListener('DOMContentLoaded', adjustSticky);
+        } else { adjustSticky(); }
+        window.addEventListener('resize', adjustSticky);
+        // also observe mutations to adjust if table changes size
+        var container = document.querySelector('.table-container');
+        if(container && window.MutationObserver){
+          var mo = new MutationObserver(function(){ adjustSticky(); });
+          mo.observe(container, { childList:true, subtree:true, attributes:true });
+        }
+      })();
+    </script>
 
     <div class="pager">
       <a href="/list?year=<%= prev.year %>&month=<%= prev.month %>">◀ 前の月</a>
