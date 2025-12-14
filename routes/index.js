@@ -4,6 +4,7 @@ var url = require('url');
 var http = require('http');
 require('date-utils');
 const db = require('../controller/readdb');
+const fs = require('fs');
 
 
 /* GET home page. */
