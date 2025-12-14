@@ -12,11 +12,12 @@
     </style>
   </head>
   <body>
+    <% var _basePath = (typeof basePath !== 'undefined') ? basePath : ''; %>
     <h1><%= title %></h1>
     <div class="pager">
-      <a href="<%= (basePath||'') %>/list?year=<%= prev.year %>&month=<%= prev.month %>">前の月</a>
+      <a href="<%= _basePath %>/list?year=<%= prev.year %>&month=<%= prev.month %>">前の月</a>
       &nbsp;|&nbsp;
-      <a href="<%= (basePath||'') %>/list?year=<%= next.year %>&month=<%= next.month %>">次の月</a>
+      <a href="<%= _basePath %>/list?year=<%= next.year %>&month=<%= next.month %>">次の月</a>
     </div>
     <style>
       .table-container { max-height: 72vh; overflow: auto; }
@@ -46,13 +47,15 @@
         </tr>
       </thead>
       <tbody>
-        <% function fmt(v){ if (v===null || typeof v === 'undefined' || v === '') return ''; var n = Number(v); return (isFinite(n))? n.toFixed(3) : v; } %>
+          <% function fmt(v){ if (v===null || typeof v === 'undefined' || v === '') return ''; var n = Number(v); return (isFinite(n))? n.toFixed(3) : v; }
+            function fmtDateLocal(d){ if(!d) return ''; if(typeof d === 'string'){ return d.slice(0,10); } try{ var dt = (d instanceof Date) ? d : new Date(d); return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0'); }catch(e){ return '';} }
+          %>
         <% if (!rows || rows.length === 0) { %>
           <tr><td colspan="<%= (es && es.es) ? (1 + es.es.length*2) : 1 %>">該当データはありません。</td></tr>
         <% } else { %>
           <% rows.forEach(function(r){ %>
             <tr>
-              <td><%= r.date ? (typeof r.date === 'string' ? r.date.slice(0,10) : r.date.toISOString().slice(0,10)) : '' %></td>
+              <td><%= fmtDateLocal(r.date) %></td>
               <% if (es && es.es) { %>
                 <% es.es.forEach(function(item){ %>
                   <% var x = item.contents[2]; %>
@@ -100,9 +103,9 @@
     </script>
 
     <div class="pager">
-      <a href="<%= (basePath||'') %>/list?year=<%= prev.year %>&month=<%= prev.month %>">◀ 前の月</a>
+      <a href="<%= _basePath %>/list?year=<%= prev.year %>&month=<%= prev.month %>">◀ 前の月</a>
       &nbsp;|&nbsp;
-      <a href="<%= (basePath||'') %>/list?year=<%= next.year %>&month=<%= next.month %>">次の月 ▶</a>
+      <a href="<%= _basePath %>/list?year=<%= next.year %>&month=<%= next.month %>">次の月 ▶</a>
     </div>
   </body>
 </html>
