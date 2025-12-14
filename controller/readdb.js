@@ -95,7 +95,7 @@ async function listByMonth(year, month) {
   try {
     // Construct first day and first day of next month
     const start = `${year}-${String(month).padStart(2,'0')}-01`;
-    const qry = `SELECT * FROM soldata WHERE date >= $1::date AND date < ($1::date + interval '1 month') ORDER BY date ASC`;
+    const qry = `SELECT * FROM soldata WHERE (date::date) >= $1::date AND (date::date) < ($1::date + interval '1 month') ORDER BY date ASC`;
     let data = await db.query(qry, [start]);
     return data;
   } catch (reason) {
