@@ -11,7 +11,7 @@ router.get("/", async (req, res, next) => {
     const entrydate = new Date();
     const formatstring = "YYYY/MM/DD HH24:MI:SS+09";
     const jsondate = entrydate.toJSON();
-    const { name, password } = req.body;
+    const { name, password } = req.body || {};
     console.log(`password: ${password}`);
     console.log("db..");
     const es = JSON.parse(fs.readFileSync('./config/es.json', 'utf8'));
@@ -85,14 +85,17 @@ router.get("/", async (req, res, next) => {
     const sname = await db.uid2name(result[0].sid);
     const kname = await db.uid2name(result[0].kid);
 
+    const sn_name = (sname && sname[0] && sname[0].name) ? sname[0].name : '';
+    const kn_name = (kname && kname[0] && kname[0].name) ? kname[0].name : '';
+
     res.render('entry', {
         title: '鍍金液分析結果',
         message: "データ入力: ",
         ed: ed,
         ed2: ed2,
         kj: result[0],
-        sn: sname[0].name,
-        kn: kname[0].name,
+        sn: sn_name,
+        kn: kn_name,
         rg: range[0],
         ld: fld,
         dt: dts,
