@@ -40,6 +40,38 @@ log_success() {
     echo "[SUCCESS] $(date '+%Y-%m-%d %H:%M:%S') - $*"
 }
 
+# Helper function to remove directory with optional sudo
+remove_directory() {
+    local dir="$1"
+    local suppress_errors="${2:-false}"
+    
+    if [ ! -d "$dir" ]; then
+        return 0
+    fi
+    
+    # Try regular rm first
+    if rm -rf "$dir" 2>/dev/null; then
+        return 0
+    fi
+    
+    # If that fails, try with sudo
+    if command -v sudo >/dev/null 2>&1; then
+        if [ "$suppress_errors" = true ]; then
+            sudo rm -rf "$dir" 2>/dev/null || true
+            return 0
+        else
+            sudo rm -rf "$dir"
+            return $?
+        fi
+    fi
+    
+    # If we get here and suppress_errors is false, it's an error
+    if [ "$suppress_errors" = false ]; then
+        return 1
+    fi
+    return 0
+}
+
 # Clean up stale containers, volumes, and data directories
 cleanup_stale_resources() {
     log_info "Cleaning up stale resources..."
@@ -62,12 +94,7 @@ cleanup_stale_resources() {
     if [ "$USE_VOLUME" = false ] && [ -n "$DATA_DIR" ]; then
         if [ -d "$DATA_DIR" ]; then
             log_info "Removing stale data directory '$DATA_DIR'..."
-            # Try regular rm first, then use sudo if needed (for container-created files)
-            if ! rm -rf "$DATA_DIR" 2>/dev/null; then
-                if command -v sudo >/dev/null 2>&1; then
-                    sudo rm -rf "$DATA_DIR" 2>/dev/null || true
-                fi
-            fi
+            remove_directory "$DATA_DIR" true
         fi
     fi
     
@@ -213,17 +240,9 @@ stop_container() {
             # Remove ephemeral data directory
             if [ -n "$DATA_DIR" ] && [ -d "$DATA_DIR" ]; then
                 log_info "Removing data directory '$DATA_DIR'..."
-                # Try regular rm first, then use sudo if needed (for container-created files)
-                if ! rm -rf "$DATA_DIR" 2>/dev/null; then
-                    if command -v sudo >/dev/null 2>&1; then
-                        sudo rm -rf "$DATA_DIR" || {
-                            log_error "Failed to remove data directory"
-                            return 1
-                        }
-                    else
-                        log_error "Failed to remove data directory (permission denied and sudo not available)"
-                        return 1
-                    fi
+                if ! remove_directory "$DATA_DIR" false; then
+                    log_error "Failed to remove data directory"
+                    return 1
                 fi
                 log_success "Data directory removed"
             else
