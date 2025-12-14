@@ -18,7 +18,14 @@
       &nbsp;|&nbsp;
       <a href="/list?year=<%= next.year %>&month=<%= next.month %>">次の月</a>
     </div>
+    <style>
+      .table-container { max-height: 72vh; overflow: auto; }
+      thead tr:first-child th { position: sticky; top: 0; z-index: 3; }
+      thead tr:nth-child(2) th { position: sticky; top: 38px; z-index: 2; }
+      thead th { background: #f0f0f0; }
+    </style>
 
+    <div class="table-container">
     <table>
       <thead>
         <tr>
@@ -39,6 +46,7 @@
         </tr>
       </thead>
       <tbody>
+        <% function fmt(v){ if (v===null || typeof v === 'undefined' || v === '') return ''; var n = Number(v); return (isFinite(n))? n.toFixed(3) : v; } %>
         <% if (!rows || rows.length === 0) { %>
           <tr><td colspan="<%= (es && es.es) ? (1 + es.es.length*2) : 1 %>">該当データはありません。</td></tr>
         <% } else { %>
@@ -49,8 +57,8 @@
                 <% es.es.forEach(function(item){ %>
                   <% var x = item.contents[2]; %>
                   <% var y = item.contents[3]; %>
-                  <td><%= (r[x] === null || typeof r[x] === 'undefined') ? '' : r[x] %></td>
-                  <td><%= (r[y] === null || typeof r[y] === 'undefined') ? '' : r[y] %></td>
+                  <td><%= fmt(r[x]) %></td>
+                  <td><%= fmt(r[y]) %></td>
                 <% }); %>
               <% } %>
             </tr>
@@ -58,6 +66,7 @@
         <% } %>
       </tbody>
     </table>
+    </div>
 
     <div class="pager">
       <a href="/list?year=<%= prev.year %>&month=<%= prev.month %>">◀ 前の月</a>
