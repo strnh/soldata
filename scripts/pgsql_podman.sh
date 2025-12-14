@@ -13,6 +13,20 @@ POSTGRES_PORT="${POSTGRES_PORT:-5432}"
 VOLUME_NAME="${POSTGRES_VOLUME:-pgdata}"
 POSTGRES_IMAGE="${POSTGRES_IMAGE:-docker.io/library/postgres:latest}"
 
+# PostgreSQL 18+ requires explicit PGDATA path
+PGDATA_PATH="/var/lib/postgresql/data/pgdata"
+
+# Determine data directory path
+# In CI (GitHub Actions), use ephemeral directory with unique run ID
+# Otherwise, use named volume for persistent data
+if [ -n "${RUNNER_TEMP:-}" ] && [ -n "${GITHUB_RUN_ID:-}" ]; then
+    DATA_DIR="${RUNNER_TEMP}/pgdata-${GITHUB_RUN_ID}"
+    USE_VOLUME=false
+else
+    DATA_DIR=""
+    USE_VOLUME=true
+fi
+
 # Logging functions
 log_info() {
     echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $*"
@@ -24,6 +38,67 @@ log_error() {
 
 log_success() {
     echo "[SUCCESS] $(date '+%Y-%m-%d %H:%M:%S') - $*"
+}
+
+# Helper function to remove directory with optional sudo
+remove_directory() {
+    local dir="$1"
+    local suppress_errors="${2:-false}"
+    
+    if [ ! -d "$dir" ]; then
+        return 0
+    fi
+    
+    # Try regular rm first
+    if rm -rf "$dir" 2>/dev/null; then
+        return 0
+    fi
+    
+    # If that fails, try with sudo
+    if command -v sudo >/dev/null 2>&1; then
+        if [ "$suppress_errors" = true ]; then
+            sudo rm -rf "$dir" 2>/dev/null || true
+            return 0
+        else
+            sudo rm -rf "$dir"
+            return $?
+        fi
+    fi
+    
+    # If we get here and suppress_errors is false, it's an error
+    if [ "$suppress_errors" = false ]; then
+        return 1
+    fi
+    return 0
+}
+
+# Clean up stale containers, volumes, and data directories
+cleanup_stale_resources() {
+    log_info "Cleaning up stale resources..."
+    
+    # Remove stale container
+    if container_exists; then
+        log_info "Removing stale container '$CONTAINER_NAME'..."
+        podman rm -f "$CONTAINER_NAME" 2>/dev/null || true
+    fi
+    
+    # Remove stale volume if using volumes
+    if [ "$USE_VOLUME" = true ]; then
+        if podman volume exists "$VOLUME_NAME" 2>/dev/null; then
+            log_info "Removing stale volume '$VOLUME_NAME'..."
+            podman volume rm "$VOLUME_NAME" 2>/dev/null || true
+        fi
+    fi
+    
+    # Remove stale data directory if using ephemeral directory
+    if [ "$USE_VOLUME" = false ] && [ -n "$DATA_DIR" ]; then
+        if [ -d "$DATA_DIR" ]; then
+            log_info "Removing stale data directory '$DATA_DIR'..."
+            remove_directory "$DATA_DIR" true
+        fi
+    fi
+    
+    log_success "Cleanup completed"
 }
 
 # Check if container is running
@@ -68,28 +143,37 @@ start_container() {
         return 0
     fi
     
-    if container_exists; then
-        log_info "Container '$CONTAINER_NAME' exists but is stopped, removing it..."
-        podman rm "$CONTAINER_NAME" || {
-            log_error "Failed to remove existing container"
-            return 1
-        }
-    fi
+    # Clean up any stale resources before starting
+    cleanup_stale_resources
     
     log_info "Creating and starting container '$CONTAINER_NAME'..."
     log_info "  Image: $POSTGRES_IMAGE"
     log_info "  Database: $POSTGRES_DB"
     log_info "  User: $POSTGRES_USER"
     log_info "  Port: $POSTGRES_PORT"
-    log_info "  Volume: $VOLUME_NAME"
+    log_info "  PGDATA: $PGDATA_PATH"
+    
+    # Prepare volume mount argument
+    local volume_arg
+    if [ "$USE_VOLUME" = true ]; then
+        # Use named volume for persistent data
+        log_info "  Volume: $VOLUME_NAME"
+        volume_arg="-v ${VOLUME_NAME}:/var/lib/postgresql/data:Z"
+    else
+        # Use ephemeral directory for CI/testing
+        log_info "  Data directory: $DATA_DIR"
+        mkdir -p "$DATA_DIR"
+        volume_arg="-v ${DATA_DIR}:/var/lib/postgresql/data:Z"
+    fi
     
     podman run --replace -d \
         --name "$CONTAINER_NAME" \
         -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
         -e POSTGRES_DB="$POSTGRES_DB" \
         -e POSTGRES_USER="$POSTGRES_USER" \
+        -e PGDATA="$PGDATA_PATH" \
         -p "${POSTGRES_PORT}:5432" \
-        -v "${VOLUME_NAME}:/var/lib/postgresql/data" \
+        $volume_arg \
         "$POSTGRES_IMAGE" || {
         log_error "Failed to start container"
         return 1
@@ -100,6 +184,7 @@ start_container() {
     # Wait for PostgreSQL to be ready
     if ! wait_for_postgres; then
         log_error "Container started but PostgreSQL is not ready"
+        podman logs "$CONTAINER_NAME" || true
         return 1
     fi
     
@@ -140,15 +225,29 @@ stop_container() {
     log_success "Container removed"
     
     if [ "$remove_volume" = true ]; then
-        log_info "Removing volume '$VOLUME_NAME'..."
-        if podman volume exists "$VOLUME_NAME" 2>/dev/null; then
-            podman volume rm "$VOLUME_NAME" || {
-                log_error "Failed to remove volume"
-                return 1
-            }
-            log_success "Volume removed"
+        if [ "$USE_VOLUME" = true ]; then
+            log_info "Removing volume '$VOLUME_NAME'..."
+            if podman volume exists "$VOLUME_NAME" 2>/dev/null; then
+                podman volume rm "$VOLUME_NAME" || {
+                    log_error "Failed to remove volume"
+                    return 1
+                }
+                log_success "Volume removed"
+            else
+                log_info "Volume '$VOLUME_NAME' does not exist"
+            fi
         else
-            log_info "Volume '$VOLUME_NAME' does not exist"
+            # Remove ephemeral data directory
+            if [ -n "$DATA_DIR" ] && [ -d "$DATA_DIR" ]; then
+                log_info "Removing data directory '$DATA_DIR'..."
+                if ! remove_directory "$DATA_DIR" false; then
+                    log_error "Failed to remove data directory"
+                    return 1
+                fi
+                log_success "Data directory removed"
+            else
+                log_info "Data directory does not exist or not configured"
+            fi
         fi
     fi
     
