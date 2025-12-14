@@ -181,6 +181,34 @@ router.get("/memberlist", async (req, res, next) => {
     });
 });
 
+/* GET monthly list view (mounted at /entry/list) */
+router.get('/list', async function(req, res, next) {
+    try {
+        const now = new Date();
+        const qyear = req.query.year ? parseInt(req.query.year,10) : now.getFullYear();
+        const qmonth = req.query.month ? parseInt(req.query.month,10) : (now.getMonth()+1);
+
+        const rows = await db.listByMonth(qyear, qmonth);
+
+        // compute prev/next month
+        let prevYear = qyear, prevMonth = qmonth - 1;
+        if (prevMonth < 1) { prevMonth = 12; prevYear -= 1; }
+        let nextYear = qyear, nextMonth = qmonth + 1;
+        if (nextMonth > 12) { nextMonth = 1; nextYear += 1; }
+
+        res.render('listview', {
+            title: `一覧: ${qyear}/${String(qmonth).padStart(2,'0')}`,
+            rows: rows,
+            year: qyear,
+            month: qmonth,
+            prev: { year: prevYear, month: prevMonth },
+            next: { year: nextYear, month: nextMonth }
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.get("/delete", async (req, res, next) => {
     const url_parts = url.parse(req.url, true);
     const { date: dt } = url_parts.query;

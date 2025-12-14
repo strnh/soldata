@@ -1,6 +1,5 @@
 const pgpLib = require('pg-promise');
 const conf = require('config');
-const JSON = require('JSON');
 const connectionString = conf.postgres.cs;
 var cn = conf.postgres.cn;
 var cn_common = conf.postgres.cn_common;
