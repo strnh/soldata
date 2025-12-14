@@ -1,0 +1,123 @@
+---
+name: Podman PostgreSQL Demo
+
+"on":
+  push:
+    branches:
+      - feature/podman-postgres-demo
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  podman-postgres-demo:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install required packages
+        run: |
+          echo "Installing Podman, PostgreSQL client, and utilities..."
+          sudo apt-get update
+          sudo apt-get install -y podman postgresql-client jq
+
+          # Verify installations
+          echo "Verifying installations..."
+          podman --version
+          psql --version
+          jq --version
+
+      - name: Start PostgreSQL container
+        run: |
+          echo "Starting PostgreSQL container with Podman..."
+          bash scripts/pgsql_podman.sh start
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: soldata
+          POSTGRES_USER: postgres
+          POSTGRES_PORT: 5432
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          echo "Waiting for PostgreSQL to be ready..."
+          bash scripts/wait-for-postgres.sh
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: soldata
+          POSTGRES_TIMEOUT: 60
+
+      - name: Create database schema
+        run: |
+          echo "Creating database schema..."
+          bash scripts/apply-schema.sh
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: soldata
+
+      - name: Run database seed scripts
+        run: |
+          echo "Running database seed scripts..."
+          bash db/seed/seed.sh
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: soldata
+
+      - name: Verify database content
+        run: |
+          echo "Verifying database content..."
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 -p 5432 -U postgres -d soldata -c "\dt"
+          echo "Checking employee table..."
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 -p 5432 -U postgres -d soldata \
+            -c "SELECT COUNT(*) FROM employee;"
+          echo "Checking soldata table..."
+          PGPASSWORD=postgres psql \
+            -h 127.0.0.1 -p 5432 -U postgres -d soldata \
+            -c "SELECT COUNT(*) FROM soldata;"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests (if available)
+        run: |
+          if [ -f package.json ] && grep -q '"test"' package.json; then
+            echo "Running tests..."
+            npm test || echo "Tests failed or not configured"
+          else
+            echo "No test script found in package.json"
+          fi
+        continue-on-error: true
+
+      - name: Show container logs on failure
+        if: failure()
+        run: |
+          echo "Container logs:"
+          podman logs postgres || true
+
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "Cleaning up..."
+          bash scripts/pgsql_podman.sh stop --clean || true

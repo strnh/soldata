@@ -1,7 +1,11 @@
 #!/bin/sh
-podman run --replace -d --name postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=soldata \
-  -p 5432:5432 \
-  -v pgdata:/var/lib/postgresql/data \
-  docker.io/library/postgres 
+# Legacy script - redirects to the new improved version
+# For the improved version with more features, use: scripts/pgsql_podman.sh
+
+echo "NOTE: This is the legacy script. Redirecting to scripts/pgsql_podman.sh"
+echo "For more options, run: bash scripts/pgsql_podman.sh --help"
+echo ""
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec bash "$SCRIPT_DIR/scripts/pgsql_podman.sh" start
+ 
