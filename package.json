@@ -24,8 +24,7 @@
     "pg": "*",
     "pg-monitor": "^2.1.0",
     "pg-promise": "^11.10.2",
-    "serve-favicon": "^2.5.0",
-    "sqlite3": "^5.1.7"
+    "serve-favicon": "^2.5.0"
   },
   "description": "data-entry plating solutuion",
   "main": "app.js",
