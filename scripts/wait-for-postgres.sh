@@ -25,13 +25,23 @@ log_success() {
 }
 
 # Check if PostgreSQL is ready
+
 check_postgres() {
-    if command -v pg_isready >/dev/null 2>&1; then
-        # Use pg_isready if available
+    # Check if we're using Podman/Docker container
+    if command -v podman >/dev/null 2>&1 && podman ps --filter "name=^${POSTGRES_CONTAINER_NAME:-postgres}$" --format "{{.Names}}" | grep -q "^${POSTGRES_CONTAINER_NAME:-postgres}$"; then
+        # Use pg_isready inside the container
+        podman exec "${POSTGRES_CONTAINER_NAME:-postgres}" pg_isready -U "$PGUSER" -d "$PGDATABASE" >/dev/null 2>&1
+        return $?
+    elif command -v docker >/dev/null 2>&1 && docker ps --filter "name=^${POSTGRES_CONTAINER_NAME:-postgres}$" --format "{{.Names}}" | grep -q "^${POSTGRES_CONTAINER_NAME:-postgres}$"; then
+        # Use pg_isready inside the Docker container
+        docker exec "${POSTGRES_CONTAINER_NAME:-postgres}" pg_isready -U "$PGUSER" -d "$PGDATABASE" >/dev/null 2>&1
+        return $?
+    elif command -v pg_isready >/dev/null 2>&1; then
+        # Fallback to host pg_isready if available
         pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" >/dev/null 2>&1
         return $?
     else
-        # Fallback to psql
+        # Last resort: try psql on host
         PGPASSWORD="${PGPASSWORD:-postgres}" psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "SELECT 1" >/dev/null 2>&1
         return $?
     fi

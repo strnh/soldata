@@ -1,39 +1,40 @@
 #!/bin/sh
 # PostgreSQL Seed Script
-# This script supports both environment variables and .pass file authentication
+# Uses psql inside the container for better portability
 
-# Default configuration (can be overridden by environment variables)
-PSQL="${PSQL:-/usr/bin/psql}"
+# Default configuration
+CONTAINER_NAME="${POSTGRES_CONTAINER_NAME:-postgres}"
 DBNAME="${PGDATABASE:-soldata}"
-DBHOST="${PGHOST:-127.0.0.1}"
-DBPORT="${PGPORT:-5432}"
 DBUSER="${PGUSER:-postgres}"
-
-# Set password from environment or use .pass file
-if [ -n "$PGPASSWORD" ]; then
-    export PGPASSWORD
-else
-    # Fallback to .pass file if it exists
-    if [ -f './.pass' ]; then
-        export PGPASSFILE='./.pass'
-    fi
-fi
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "[INFO] Running seed scripts..."
-echo "[INFO] Database: $DBNAME at $DBHOST:$DBPORT"
+echo "[INFO] Database: $DBNAME"
 echo "[INFO] User: $DBUSER"
 
+# Detect container runtime (Podman or Docker)
+if command -v podman >/dev/null 2>&1 && podman ps --filter "name=^${CONTAINER_NAME}$" --format "{{.Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+    CONTAINER_CMD="podman"
+elif command -v docker >/dev/null 2>&1 && docker ps --filter "name=^${CONTAINER_NAME}$" --format "{{. Names}}" | grep -q "^${CONTAINER_NAME}$"; then
+    CONTAINER_CMD="docker"
+else
+    echo "[ERROR] No running container found:  $CONTAINER_NAME"
+    echo "[ERROR] Please start the PostgreSQL container first"
+    exit 1
+fi
+
+echo "[INFO] Using container: $CONTAINER_NAME (runtime: $CONTAINER_CMD)"
+
 # Run seed scripts
-$PSQL -U "$DBUSER" -h "$DBHOST" -p "$DBPORT" "$DBNAME" < "$SCRIPT_DIR/soldata_seed.sql" || {
+$CONTAINER_CMD exec -i "$CONTAINER_NAME" psql -U "$DBUSER" -d "$DBNAME" < "$SCRIPT_DIR/soldata_seed.sql" || {
     echo "[ERROR] Failed to run soldata_seed.sql"
     exit 1
 }
 echo "[SUCCESS] soldata_seed.sql completed"
 
-$PSQL -U "$DBUSER" -h "$DBHOST" -p "$DBPORT" "$DBNAME" < "$SCRIPT_DIR/employee_seed.sql" || {
+$CONTAINER_CMD exec -i "$CONTAINER_NAME" psql -U "$DBUSER" -d "$DBNAME" < "$SCRIPT_DIR/employee_seed.sql" || {
     echo "[ERROR] Failed to run employee_seed.sql"
     exit 1
 }
