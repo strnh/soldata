@@ -1175,7 +1175,9 @@ $.fn.position = function( options ) {
 	options = $.extend( {}, options );
 
 	var atOffset, targetWidth, targetHeight, targetOffset, basePosition, dimensions,
-		target = $( options.of ),
+		target = typeof options.of === "string" ?
+			$( document ).find( options.of ) :
+			$( options.of ),
 		within = $.position.getWithinInfo( options.within ),
 		scrollInfo = $.position.getScrollInfo( within ),
 		collision = ( options.collision || "flip" ).split( " " ),
@@ -3980,7 +3982,7 @@ $.extend(Datepicker.prototype, {
 			inst.append.remove();
 		}
 		if (appendText) {
-			inst.append = $("<span class='" + this._appendClass + "'>" + appendText + "</span>");
+			inst.append = $("<span>").addClass(this._appendClass).text(appendText);
 			input[isRTL ? "before" : "after"](inst.append);
 		}
 
@@ -4819,7 +4821,7 @@ $.extend(Datepicker.prototype, {
 			altFormat = this._get(inst, "altFormat") || this._get(inst, "dateFormat");
 			date = this._getDate(inst);
 			dateStr = this.formatDate(altFormat, date, this._getFormatConfig(inst));
-			$(altField).each(function() { $(this).val(dateStr); });
+			$(document).find(altField).each(function() { $(this).val(dateStr); });
 		}
 	},
 
