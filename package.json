@@ -12,6 +12,7 @@
     "body-parser": "^2.2.1",
     "config": "^3.3.12",
     "cookie-parser": "^1.4.7",
+    "create-playwright": "^1.17.139",
     "date-utils": "~1.2.7",
     "debug": "^2.6.9",
     "ejs": "^3.1",
