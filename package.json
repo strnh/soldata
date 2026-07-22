@@ -9,7 +9,7 @@
     "@duosecurity/duo_universal": "^2.0.3",
     "async": "*",
     "bluebird": "^3.7.2",
-    "body-parser": "^2.2.1",
+    "body-parser": "^2.3.0",
     "config": "^3.3.12",
     "cookie-parser": "^1.4.7",
     "create-playwright": "^1.17.139",
